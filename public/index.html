@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookmark Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14110e; --panel:#1d1813; --panel-2:#241e17; --line:#3a3025;
+    --ink:#f3ece1; --muted:#a99c87; --accent:#e0a34a; --accent-2:#7fae8a; --accent-3:#8fb3d9;
+    --danger:#d4795f;
+    --serif:"Fraunces",Georgia,serif; --sans:"IBM Plex Sans",sans-serif; --mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+    radial-gradient(900px 500px at 85% -10%, rgba(224,163,74,.10), transparent 60%),
+    var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  header{padding:34px 28px 18px;border-bottom:1px solid var(--line);position:relative}
+  h1{font-family:var(--serif);font-weight:900;font-size:30px;margin:0;letter-spacing:-.01em}
+  h1 .dot{color:var(--accent)}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;font-family:var(--mono)}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+  button{font-family:var(--sans);cursor:pointer;border:none;border-radius:8px}
+  .connect{background:var(--accent);color:#1a1206;font-weight:600;padding:12px 18px;font-size:15px}
+  .connect:hover{filter:brightness(1.06)}
+  .ghost{background:transparent;color:var(--muted);border:1px solid var(--line);padding:7px 12px;font-size:12px;font-family:var(--mono)}
+  .ghost:hover{color:var(--ink);border-color:var(--accent)}
+  .center{text-align:center;padding:70px 20px}
+  .center p{color:var(--muted);max-width:420px;margin:0 auto 22px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;margin-bottom:16px;position:relative}
+  .meta{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:9px}
+  .meta .name{color:var(--ink);font-family:var(--sans);font-weight:600;font-size:13px}
+  .text{font-size:15.5px;white-space:pre-wrap;word-break:break-word}
+  .foot{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding-top:11px;border-top:1px dashed var(--line)}
+  .stats{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;gap:14px}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  a.open{color:var(--muted);font-family:var(--mono);font-size:11px;text-decoration:none;border-bottom:1px solid transparent}
+  a.open:hover{color:var(--ink);border-color:var(--accent)}
+  .verify{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--accent);padding:6px 11px;font-size:12px;font-weight:600;border-radius:20px}
+  .verify:hover{border-color:var(--accent);background:#2c2418}
+  .verify svg{width:14px;height:14px}
+  .verify[disabled]{opacity:.5;cursor:not-allowed}
+  .save{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);padding:6px 11px;font-size:12px;font-weight:600;border-radius:20px}
+  .save:hover{border-color:var(--accent-2);background:#22291f}
+  .save svg{width:14px;height:14px}
+  .save.saved{border-color:var(--accent-2)}
+  .save[disabled]{opacity:.7;cursor:default}
+  .toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  .search{flex:1;min-width:160px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:var(--sans);font-size:13.5px;padding:9px 12px;border-radius:8px}
+  .search:focus{outline:none;border-color:var(--accent)}
+  .search::placeholder{color:var(--muted)}
+  .sel{background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:12px;padding:9px 10px;border-radius:8px;cursor:pointer}
+  .sel:focus{outline:none;border-color:var(--accent)}
+  .sumb{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-3);padding:6px 11px;font-size:12px;font-weight:600;border-radius:20px}
+  .sumb:hover{border-color:var(--accent-3);background:#1f2630}
+  .sumb svg{width:14px;height:14px}
+  .sumb[disabled]{opacity:.5;cursor:not-allowed}
+  .analysis.summary{border-left-color:var(--accent-3)}
+  .analysis.summary .tag{color:var(--accent-3)}
+  .analysis{margin-top:14px;border-left:2px solid var(--accent);background:var(--panel-2);border-radius:0 10px 10px 0;padding:13px 15px;font-size:14px}
+  .analysis .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+  .analysis p{margin:0 0 9px} .analysis p:last-child{margin:0}
+  .analysis strong{color:var(--ink)}
+  .analysis .cost{margin-top:11px;padding-top:9px;border-top:1px dashed var(--line);font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .spin{width:15px;height:15px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:r .7s linear infinite;display:inline-block;vertical-align:-3px;margin-right:7px}
+  @keyframes r{to{transform:rotate(360deg)}}
+  .err{color:var(--danger);font-family:var(--mono);font-size:12px;margin-top:10px}
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(8,6,4,.66);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+  .scrim.on{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:420px;padding:22px}
+  .modal h3{font-family:var(--serif);font-weight:600;margin:0 0 8px;font-size:20px}
+  .modal p{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+  .modal .row{display:flex;gap:10px;justify-content:flex-end}
+  .modal .go{background:var(--accent);color:#1a1206;font-weight:600;padding:9px 16px}
+  .modal .no{background:transparent;color:var(--muted);border:1px solid var(--line);padding:9px 16px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-bottom:0;padding-top:0">
+    <h1>Bookmark Explorer<span class="dot">.</span></h1>
+    <div class="sub">your saved posts &middot; verify any of them with Claude</div>
+  </div>
+</header>
+
+<div class="wrap" id="app"></div>
+
+<div class="scrim" id="scrim">
+  <div class="modal">
+    <h3>Check this post with Claude?</h3>
+    <p><strong>Deep</strong> lets Claude web-search to verify claims (most accurate, costs ~2–5&cent; per check). <strong>Quick</strong> uses Claude's own knowledge only — no searches, far cheaper, but can't confirm live data.</p>
+    <div class="row">
+      <button class="no" id="m-no">Cancel</button>
+      <button class="no" id="m-quick">Quick</button>
+      <button class="go" id="m-deep">Deep · web search</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const app = document.getElementById("app");
+const scrim = document.getElementById("scrim");
+let analyzeEnabled = true;
+let pendingPost = null;
+
+const esc = s => (s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function fmtDate(s){ if(!s) return ""; const d=new Date(s); return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+function num(n){ return n>=1000 ? (n/1000).toFixed(n>=10000?0:1)+"k" : (n||0); }
+
+// minimal, safe markdown-ish rendering: paragraphs + **bold**
+function render(t){
+  return esc(t).split(/\n{2,}/).map(p=>{
+    p = p.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
+    return "<p>"+p+"</p>";
+  }).join("");
+}
+
+async function boot(){
+  const st = await (await fetch("/api/status")).json();
+  analyzeEnabled = st.analyzeEnabled;
+  if(!st.authed){ return showConnect(); }
+  showLoading();
+  try{
+    const data = await (await fetch("/api/bookmarks")).json();
+    if(data.error) throw new Error(data.error);
+    showBookmarks(data.bookmarks||[]);
+  }catch(e){ app.innerHTML = `<div class="center"><p class="err">${esc(e.message)}</p><button class="ghost" onclick="location.reload()">Retry</button></div>`; }
+}
+
+function showConnect(){
+  app.innerHTML = `<div class="center">
+    <p>Connect your X account once. Your tokens are stored locally on this machine and refreshed automatically — you won't need to log in again.</p>
+    <button class="connect" onclick="location.href='/login'">Connect X account</button>
+  </div>`;
+}
+function showLoading(){ app.innerHTML = `<div class="center"><span class="spin"></span><span class="count">Pulling your bookmarks…</span></div>`; }
+
+let allBookmarks = [];
+const view = { q:"", author:"", sort:"newest" };
+
+function showBookmarks(list){
+  allBookmarks = list;
+  if(!list.length){ app.innerHTML = `<div class="center"><p>No bookmarks found.</p></div>`; return; }
+  const authors = [...new Map(list.filter(b=>b.author_username).map(b=>[b.author_username, b.author_name||b.author_username])).entries()]
+    .sort((a,b)=> a[1].toLowerCase().localeCompare(b[1].toLowerCase()));
+  app.innerHTML = `
+    <div class="topbar">
+      <span class="count" id="count"></span>
+      <button class="ghost" id="logout">Disconnect</button>
+    </div>
+    <div class="toolbar">
+      <input id="q" class="search" type="text" placeholder="Search text or author…" />
+      <select id="author" class="sel"><option value="">All authors</option>${
+        authors.map(([u,n])=>`<option value="${esc(u)}">${esc(n)} (@${esc(u)})</option>`).join("")
+      }</select>
+      <select id="sort" class="sel">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="likes">Most liked</option>
+        <option value="retweets">Most reposted</option>
+      </select>
+    </div>
+    <div id="list"></div>`;
+  document.getElementById("logout").onclick = async ()=>{ await fetch("/api/logout",{method:"POST"}); location.reload(); };
+  const q=document.getElementById("q"), au=document.getElementById("author"), so=document.getElementById("sort");
+  q.oninput = ()=>{ view.q = q.value.trim().toLowerCase(); renderList(); };
+  au.onchange = ()=>{ view.author = au.value; renderList(); };
+  so.onchange = ()=>{ view.sort = so.value; renderList(); };
+  renderList();
+}
+
+function currentList(){
+  let l = allBookmarks.slice();
+  if(view.author) l = l.filter(b=> b.author_username === view.author);
+  if(view.q) l = l.filter(b=> (b.text||"").toLowerCase().includes(view.q)
+      || (b.author_name||"").toLowerCase().includes(view.q)
+      || (b.author_username||"").toLowerCase().includes(view.q));
+  const m = b => b.metrics||{};
+  if(view.sort==="oldest") l.sort((a,b)=> new Date(a.created_at)-new Date(b.created_at));
+  else if(view.sort==="likes") l.sort((a,b)=> (m(b).like_count||0)-(m(a).like_count||0));
+  else if(view.sort==="retweets") l.sort((a,b)=> (m(b).retweet_count||0)-(m(a).retweet_count||0));
+  else l.sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
+  return l;
+}
+
+function renderList(){
+  const l = currentList();
+  document.getElementById("count").textContent =
+    `${l.length} of ${allBookmarks.length} post${allBookmarks.length>1?"s":""}`;
+  const host = document.getElementById("list");
+  if(!l.length){ host.innerHTML = `<div class="center"><p>No posts match.</p></div>`; return; }
+  host.innerHTML = l.map(cardHTML).join("");
+  l.forEach(b=>{
+    document.getElementById("s_"+b.id).onclick = ()=> savePost(b);
+    const v = document.getElementById("v_"+b.id);
+    const sm = document.getElementById("sum_"+b.id);
+    if(analyzeEnabled){
+      v.onclick = ()=> askConfirm(b);
+      sm.onclick = ()=> summarize(b);
+    } else {
+      v.disabled = true; v.title = "Set ANTHROPIC_API_KEY to enable";
+      sm.disabled = true; sm.title = "Set ANTHROPIC_API_KEY to enable";
+    }
+  });
+}
+
+function cardHTML(b){
+  const m=b.metrics||{};
+  return `<div class="card">
+    <div class="meta"><span class="name">${esc(b.author_name)}</span><span>@${esc(b.author_username)}</span><span>&middot; ${fmtDate(b.created_at)}</span></div>
+    <div class="text">${esc(b.text)}</div>
+    <div class="foot">
+      <div class="stats"><span>&hearts; ${num(m.like_count)}</span><span>&#8645; ${num(m.retweet_count)}</span><span>&#128172; ${num(m.reply_count)}</span></div>
+      <div class="actions">
+        <a class="open" href="${esc(b.url)}" target="_blank" rel="noopener">open ↗</a>
+        <button class="save" id="s_${b.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+          Save
+        </button>
+        <button class="sumb" id="sum_${b.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
+          Summarize
+        </button>
+        <button class="verify" id="v_${b.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          Verify
+        </button>
+      </div>
+    </div>
+    <div id="a_${b.id}"></div>
+  </div>`;
+}
+
+function askConfirm(b){ pendingPost=b; scrim.classList.add("on"); }
+document.getElementById("m-no").onclick = ()=>{ scrim.classList.remove("on"); pendingPost=null; };
+function chooseMode(mode){
+  const b = pendingPost; scrim.classList.remove("on"); pendingPost=null;
+  if(b) runAnalyze(b, mode);
+}
+document.getElementById("m-quick").onclick = ()=> chooseMode("quick");
+document.getElementById("m-deep").onclick = ()=> chooseMode("deep");
+
+async function savePost(b){
+  const btn = document.getElementById("s_"+b.id);
+  btn.disabled = true;
+  try{
+    const r = await fetch("/api/save",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:b.text, author_username:b.author_username, author_name:b.author_name, url:b.url})});
+    const data = await r.json();
+    if(data.error) throw new Error(data.error);
+    btn.classList.add("saved");
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Saved`;
+  }catch(e){
+    btn.innerHTML = "Retry"; btn.disabled = false;
+  }
+}
+
+async function summarize(b){
+  const slot = document.getElementById("a_"+b.id);
+  const btn = document.getElementById("sum_"+b.id);
+  btn.disabled = true;
+  slot.innerHTML = `<div class="analysis summary"><span class="spin"></span><span class="count">Summarizing…</span></div>`;
+  try{
+    const r = await fetch("/api/summarize",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:b.text, author_username:b.author_username})});
+    const data = await r.json();
+    if(data.error) throw new Error(data.error);
+    const cost = `${(data.input_tokens||0).toLocaleString()} in / ${(data.output_tokens||0).toLocaleString()} out tokens · no web search`;
+    slot.innerHTML = `<div class="analysis summary"><div class="tag">Claude · summary</div>${render(data.summary)}<div class="cost">${cost}</div></div>`;
+  }catch(e){
+    slot.innerHTML = `<div class="err">Summary failed: ${esc(e.message)}</div>`;
+  }finally{ btn.disabled = false; }
+}
+
+async function runAnalyze(b,mode){
+  const slot = document.getElementById("a_"+b.id);
+  const btn = document.getElementById("v_"+b.id);
+  btn.disabled = true;
+  slot.innerHTML = `<div class="analysis"><span class="spin"></span><span class="count">Claude is ${mode==="deep"?"searching &amp; ":""}checking this post…</span></div>`;
+  try{
+    const r = await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:b.text, author_username:b.author_username, url:b.url, mode})});
+    const data = await r.json();
+    if(data.error) throw new Error(data.error);
+    const searchCost = ((data.searches||0)*0.01);
+    const cost = `${data.searches||0} web search${data.searches===1?"":"es"} · ~$${searchCost.toFixed(2)} search fee · ${(data.input_tokens||0).toLocaleString()} in / ${(data.output_tokens||0).toLocaleString()} out tokens (+ token cost)`;
+    slot.innerHTML = `<div class="analysis"><div class="tag">Claude · ${data.mode||mode} check</div>${render(data.analysis)}<div class="cost">${cost}</div></div>`;
+  }catch(e){
+    slot.innerHTML = `<div class="err">Analysis failed: ${esc(e.message)}</div>`;
+  }finally{ btn.disabled = false; }
+}
+
+boot();
+</script>
+</body>
+</html>
