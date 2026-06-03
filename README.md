@@ -120,3 +120,8 @@ page for the source of truth.
   data only to you. Don't redistribute others' posts; stay within X's terms.
 - An AI fact-check is a **starting point, not a verdict.** Nothing here is
   financial advice.
+
+  ## Note
+
+Built with the help of Claude (Anthropic) for development, debugging, and
+documentation. All setup, testing, and decisions are my own.
